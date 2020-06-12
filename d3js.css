@@ -1,0 +1,101 @@
+body {
+    background-color: rgb(29, 29, 29);
+    margin: 0;
+    font-family: Helvetica
+}
+
+/* Add a black background color to the top navigation */
+.topnav {
+    overflow: hidden;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%; /* Full width */
+    height: 7%;
+}
+  
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+}
+  
+footer p {
+    font-size: 0.75rem;
+    color: #cccccc;
+    margin: 3px;
+}
+
+.success-bar {
+    fill: #5ab9ea;
+}
+
+.success {
+    fill: #5ab9ea;
+}
+
+.failure-bar {
+    fill: #5680e9;
+}
+
+.failure {
+    fill: #5680e9;
+}
+
+svg text {
+    font-size: 10px;
+    fill: white;
+}
+
+svg path {
+    stroke: white;
+}
+
+svg line {
+    stroke: white;
+}
+
+.chart-title {
+    font-size: 18px;
+}
+
+.faded {
+    opacity: 0.3;
+}
+
+.hidden {
+    display: none;
+}
+
+#page-content {
+    margin-top: 7%;
+    display: flex;
+    flex-direction: row;
+}
+
+.link {
+    color: #84ceeb
+}
+
+.bar-chart-description {
+    margin-left: 100px;
+    width: 450px;
+}
+
+.donut-chart-description {
+    margin-left: 50px;
+    width: 300px;
+}
+
+.chart-description {
+    color: white;
+    font-size: 0.85rem;
+}
