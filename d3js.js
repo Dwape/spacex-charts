@@ -301,7 +301,7 @@ function drawDonutChart(data) {
     radius = 150,
     g = svg
         .append("g")
-        .attr("transform", "translate(" + (width / 2) + "," + ((height / 2) + 50) + ")");
+        .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")"); // + 50
 
     let color = d3.scaleOrdinal(['#5680e9', '#5ab9ea','#84ceeb', '#8860d0', '#c1c8e4'])
     // let color = d3.scaleOrdinal(['#4daf4a','#377eb8','#ff7f00','#984ea3','#e41a1c']);
@@ -397,11 +397,35 @@ function drawDonutChart(data) {
                 .classed("hidden", true)
         })
 
-    //Draw arc paths
+    // Draw arc paths
     arcs.append("path")
         .attr("class", "arc-path")
         .attr("fill", function(d, i) {
             return color(i);
         })
-        .attr("d", arc)      
+        .attr("d", arc)  
+        
+    // Add key
+    let key = g.append("g")
+        .attr("transform", "translate(-50, 200)") // How much should we translate this?
+        
+
+    key.selectAll(".donut-chart-key")
+        .data(data)
+        .join("rect")
+        .attr("class", "donut-chart-key")
+        .attr("height", 20)
+        .attr("width", 20)
+        .attr("y", function(d, i) {return i * 30})
+        .attr("fill", function(d, i) {
+            return color(i);
+        })
+
+    key.selectAll(".rocket-key")
+        .data(data)
+        .join("text")
+        .attr("class", "rocket-key")
+        .text(function(d) {return d.rocket})
+        .attr("x", 30)
+        .attr("y", function(d, i) {return 14 + (30 * i)})
 }
