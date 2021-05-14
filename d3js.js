@@ -18,22 +18,23 @@ let rocketDictionary = {}
 
 // Fetch rocket data
 
-d3.json("https://api.spacexdata.com/v4/rockets")
-    .then(function(data) {
-    rocketDictionary = parseRocketData(data);
-});
+const rocketPromise = d3.json("https://api.spacexdata.com/v4/rockets");
 
-// Fetch data
+// Fetch launch data
 
-// This request should be done after the first one.
-d3.json("https://api.spacexdata.com/v4/launches/past")
-    .then(function(data) {
+const launchPromise = d3.json("https://api.spacexdata.com/v4/launches/past");
 
-    let grouped = parseLaunchData(data);
-    drawBarChart(grouped);
+Promise.all([rocketPromise, launchPromise]).then(data => {
+    let rocketData = data[0];
+    let launchData = data[1];
 
-    let rocketData = parseLaunchRocketData(data);
-    drawDonutChart(rocketData);
+    rocketDictionary = parseRocketData(rocketData);
+
+    let parsedLaunchData = parseLaunchData(launchData);
+    drawBarChart(parsedLaunchData);
+
+    let parsedRocketData = parseLaunchRocketData(launchData);
+    drawDonutChart(parsedRocketData);
 });
 
 function groupByArray(xs, key) { 
