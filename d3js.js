@@ -1,4 +1,3 @@
-// Is this too inefficient?
 window.addEventListener('scroll', function() {
     if (window.pageYOffset > 50) {
         d3.selectAll(".topnav")
@@ -15,15 +14,25 @@ window.addEventListener('scroll', function() {
     }
 });
 
+let rocketDictionary = {}
+
+// Fetch rocket data
+
+d3.json("https://api.spacexdata.com/v4/rockets")
+    .then(function(data) {
+    rocketDictionary = parseRocketData(data);
+});
+
 // Fetch data
 
-d3.json("https://api.spacexdata.com/v3/launches/past")
+// This request should be done after the first one.
+d3.json("https://api.spacexdata.com/v4/launches/past")
     .then(function(data) {
 
     let grouped = parseLaunchData(data);
     drawBarChart(grouped);
 
-    let rocketData = parseRocketData(data);
+    let rocketData = parseLaunchRocketData(data);
     drawDonutChart(rocketData);
 });
 
@@ -39,12 +48,18 @@ function groupByArray(xs, key) {
         return rv; 
     }, []); }
 
+function parseRocketData(data) {
+    let dictionary = {};
+    data.forEach(rocket => dictionary[rocket.id] = rocket.name);
+    return dictionary;
+}
+
 function parseLaunchData(data) {
     let parsed = data
         .map(launch => { return {
-            year: launch.launch_year,
-            name: launch.mission_name,
-            success: launch.launch_success
+            year: utcDateToYear(launch.date_utc),
+            name: launch.name,
+            success: launch.success
         }});
     return groupByArray(parsed, "year")
         .map(value => {
@@ -59,9 +74,9 @@ function parseLaunchData(data) {
         });
 }
 
-function parseRocketData(data) {
+function parseLaunchRocketData(data) {
     let parsed = data
-        .map(launch => {return {rocket: launch.rocket.rocket_name}})
+        .map(launch => {return {rocket: rocketDictionary[launch.rocket]}})
     return groupByArray(parsed, "rocket")
         .map(value => {
             return {
@@ -69,6 +84,10 @@ function parseRocketData(data) {
                 amount: value.values.length
             }
         })
+}
+
+function utcDateToYear(date) {
+    return date.split('-')[0];
 }
 
 function drawBarChart(grouped) {
