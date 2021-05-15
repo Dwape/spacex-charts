@@ -1,4 +1,3 @@
-// Is this too inefficient?
 window.addEventListener('scroll', function() {
     if (window.pageYOffset > 50) {
         d3.selectAll(".topnav")
@@ -15,16 +14,27 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Fetch data
+let rocketDictionary = {}
 
-d3.json("https://api.spacexdata.com/v3/launches/past")
-    .then(function(data) {
+// Fetch rocket data
 
-    let grouped = parseLaunchData(data);
-    drawBarChart(grouped);
+const rocketPromise = d3.json("https://api.spacexdata.com/v4/rockets");
 
-    let rocketData = parseRocketData(data);
-    drawDonutChart(rocketData);
+// Fetch launch data
+
+const launchPromise = d3.json("https://api.spacexdata.com/v4/launches/past");
+
+Promise.all([rocketPromise, launchPromise]).then(data => {
+    let rocketData = data[0];
+    let launchData = data[1];
+
+    rocketDictionary = parseRocketData(rocketData);
+
+    let parsedLaunchData = parseLaunchData(launchData);
+    drawBarChart(parsedLaunchData);
+
+    let parsedRocketData = parseLaunchRocketData(launchData);
+    drawDonutChart(parsedRocketData);
 });
 
 function groupByArray(xs, key) { 
@@ -39,12 +49,18 @@ function groupByArray(xs, key) {
         return rv; 
     }, []); }
 
+function parseRocketData(data) {
+    let dictionary = {};
+    data.forEach(rocket => dictionary[rocket.id] = rocket.name);
+    return dictionary;
+}
+
 function parseLaunchData(data) {
     let parsed = data
         .map(launch => { return {
-            year: launch.launch_year,
-            name: launch.mission_name,
-            success: launch.launch_success
+            year: utcDateToYear(launch.date_utc),
+            name: launch.name,
+            success: launch.success
         }});
     return groupByArray(parsed, "year")
         .map(value => {
@@ -59,9 +75,9 @@ function parseLaunchData(data) {
         });
 }
 
-function parseRocketData(data) {
+function parseLaunchRocketData(data) {
     let parsed = data
-        .map(launch => {return {rocket: launch.rocket.rocket_name}})
+        .map(launch => {return {rocket: rocketDictionary[launch.rocket]}})
     return groupByArray(parsed, "rocket")
         .map(value => {
             return {
@@ -69,6 +85,10 @@ function parseRocketData(data) {
                 amount: value.values.length
             }
         })
+}
+
+function utcDateToYear(date) {
+    return date.split('-')[0];
 }
 
 function drawBarChart(grouped) {
